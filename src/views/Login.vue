@@ -26,6 +26,7 @@
             <br />
 
             <v-btn
+              @click="login"
               :disabled="!form"
               :loading="loading"
               block
@@ -44,10 +45,35 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
   name: "App",
   data() {
-    return {};
+    return {
+      form: false,
+      email: "",
+      password: "",
+      loading: false,
+      required: (v) => !!v || "Bu alan zorunludur",
+    };
+  },
+
+  methods: {
+    login() {
+      axios
+        .post("http://localhost:3000/admin/login", {
+          email: this.email,
+          password: this.password,
+        })
+        .then((response) => {
+          console.log(response);
+          localStorage.setItem("token", response.data.token);
+          this.$router.push("/dashboard");
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
   },
 };
 </script>
