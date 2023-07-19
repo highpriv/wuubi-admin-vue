@@ -46,6 +46,8 @@
 
 <script>
 import axios from "axios";
+import { useAuthStore } from "@/stores/auth";
+
 export default {
   name: "App",
   data() {
@@ -59,20 +61,31 @@ export default {
   },
 
   methods: {
-    login() {
-      axios
-        .post("http://localhost:3000/admin/login", {
+    async login() {
+      try {
+        const response = await this.$axios.post("/admin/login", {
           email: this.email,
           password: this.password,
-        })
-        .then((response) => {
-          console.log(response);
-          localStorage.setItem("token", response.data.token);
-          this.$router.push("/dashboard");
-        })
-        .catch((error) => {
-          console.log(error);
         });
+
+        const data = response.data;
+
+        if (response.status === 200) {
+          const { name, email, lastname, avatar } = data;
+          useAuthStore().setToken(data.token);
+          useAuthStore().setUserInfo({
+            name,
+            email,
+            lastname,
+            avatar,
+          });
+          this.$router.push("/dashboard");
+        } else {
+          console.error(data.message);
+        }
+      } catch (error) {
+        console.log(error);
+      }
     },
   },
 };

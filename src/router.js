@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from "vue-router";
 import App from "./App.vue";
 import Dashboard from "./views/Dashboard.vue";
 import Login from "./views/Login.vue";
+import Contents from "./views/dashboard/Contents.vue";
+import { useAuthStore } from "@/stores/auth";
 
 const routes = [
   {
@@ -14,6 +16,12 @@ const routes = [
     meta: {
       requiresAuth: true,
     },
+    children: [
+      {
+        path: "contents",
+        component: Contents,
+      },
+    ],
   },
   {
     path: "/login",
@@ -27,11 +35,12 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const isLoggedIn = true; // auth middleware'i yazılacak
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
 
-  if (requiresAuth && !isLoggedIn) {
+  if (requiresAuth && !useAuthStore().token) {
     next("/login");
+  } else if (to.path === "/login" && useAuthStore().token) {
+    next("/dashboard");
   } else {
     next();
   }
