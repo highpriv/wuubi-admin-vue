@@ -14,6 +14,9 @@
       :defaultColDef="defaultColDef"
       rowSelection="multiple"
       animateRows="true"
+      :pagination="true"
+      :paginationPageSize="10"
+      @cellClicked="$router.push(`/dashboard/contents/${$event.data?.slug}`)"
     >
     </ag-grid-vue>
   </div>

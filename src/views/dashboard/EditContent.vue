@@ -1,11 +1,17 @@
 <template>
   <div class="bg-gray-100 h-full rounded-md pa-4 overflow-scroll">
+    <v-alert
+      v-if="alertDialog.show"
+      :text="alertDialog.text"
+      :type="alertDialog.type"
+      class="mb-3"
+    ></v-alert>
     <div
       class="flex items-center justify-between text-xl font-bold pa-4 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-md mb-4 text-white"
     >
       <h1>İçeriği Düzenle</h1>
       <div>
-        <v-btn color="success"> Kaydet </v-btn>
+        <v-btn color="success" @click="editContent"> Kaydet </v-btn>
       </div>
     </div>
     <div class="w-full">
@@ -34,7 +40,7 @@
         </span>
         <v-select
           v-model="contentData.status"
-          :items="statusOptions.map((option) => option.text)"
+          :items="statusOptions"
           placeholder="Başlık"
           variant="outlined"
           class="w-full"
@@ -92,7 +98,7 @@
 
 <script setup>
 import api from "@/service/api";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useAuthStore } from "@/stores/auth";
 import { QuillEditor } from "@vueup/vue-quill";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
@@ -100,24 +106,46 @@ import "@vueup/vue-quill/dist/vue-quill.snow.css";
 const authStore = useAuthStore();
 
 const { slug } = defineProps(["slug"]);
-const statusOptions = [
-  {
-    text: "Yayında",
-    value: "Published",
-  },
-  {
-    text: "Taslak",
-    value: "Draft",
-  },
-  {
-    text: "Beklemede",
-    value: "Pending",
-  },
-  {
-    text: "Reddedildi",
-    value: "Rejected",
-  },
-];
+const alertDialog = ref({
+  show: false,
+  text: "",
+  type: "",
+});
+
+watch(
+  () => alertDialog.value.show,
+  (value) => {
+    if (value) {
+      setTimeout(() => {
+        alertDialog.value.show = false;
+      }, 2000);
+    }
+  }
+);
+const statusOptions = ["Published", "Draft", "Pending", "Rejected"];
+
+const editContent = () => {
+  api
+    .put("/admin/posts/?id=" + contentData.value._id, contentData.value)
+    .then((response) => {
+      if (response.status === 200) {
+        alertDialog.value = {
+          show: true,
+          text: "İçerik başarıyla güncellendi.",
+          type: "success",
+        };
+      } else {
+        alertDialog.value = {
+          show: true,
+          text: "İçerik güncellenirken bir hata oluştu.",
+          type: "error",
+        };
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+};
 
 const imgDomain = "https://wuubi-media.s3.eu-central-1.amazonaws.com/";
 const contentData = ref({ content: "<p>Placeholder content</p>" });
