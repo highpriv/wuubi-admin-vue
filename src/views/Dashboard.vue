@@ -25,6 +25,8 @@ const authStore = useAuthStore();
 const router = useRouter();
 const userData = authStore.userInfo;
 
+authStore.setSiteConfig();
+
 if (!authStore.token) {
   router.push("/login");
 }

@@ -9,6 +9,11 @@ interface AuthState {
     email: string;
     avatar: string;
   };
+  siteConfig: {
+    metaTitle: string;
+    contactAddress: string;
+    contentCategories: string[];
+  };
 }
 
 export const useAuthStore = defineStore("auth", {
@@ -20,6 +25,11 @@ export const useAuthStore = defineStore("auth", {
       email: "",
       avatar: "",
     },
+    siteConfig: {
+      metaTitle: "",
+      contactAddress: "",
+      contentCategories: [],
+    },
   }),
   persist: {
     storage: sessionStorage,
@@ -30,6 +40,11 @@ export const useAuthStore = defineStore("auth", {
     },
     setUserInfo(userInfo: any) {
       this.userInfo = userInfo;
+    },
+    async setSiteConfig() {
+      const response = await fetch("http://localhost:3000/settings");
+      const data = await response.json();
+      this.siteConfig = data;
     },
     logout(router: Router) {
       this.token = null;

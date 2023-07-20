@@ -21,6 +21,11 @@ const routes = [
         path: "contents",
         component: Contents,
       },
+      {
+        path: "contents/:slug",
+        component: () => import("./views/dashboard/EditContent.vue"),
+        props: true,
+      },
     ],
   },
   {

@@ -6,6 +6,7 @@ module.exports = {
     extend: {
       backgroundColor: {
         side: "#060606",
+        header: "#423C3F",
       },
       textColor: {
         side: "#8b8d93",
